@@ -15,36 +15,46 @@ def read_pfd(file_path):
 	return text
 
 
-def parse_text_with_regex(text):
-	# Ищем блоки текста, начинающиеся с "Стр.:" и содержащие пары "Ключ: Значение"
-	pattern = re.compile(r"Стр\.: (\d+)(.*?)(?=\n\n|$)", re.DOTALL)
-	matches = pattern.findall(text)
+# def parse_text_with_regex(text):
+# 	pattern = re.compile(r"Стр\.: (\d+)(.*?)(?=\n\n|$)", re.DOTALL)
+# 	matches = pattern.findall(text)
+#
+# 	data_dict = {}
+#
+# 	for match in matches:
+# 		page_number, page_content = match
+# 		page_data = {"Стр.": int(page_number)}
+#
+# 		key_value_pattern = re.compile(r"([^:\n]+):(.+?)(?:(?=\n[^:\n]+:)|\Z)", re.DOTALL)
+# 		key_value_matches = key_value_pattern.findall(page_content)
+#
+# 		for key, value in key_value_matches:
+# 			page_data[key.strip()] = value.strip()
+#
+# 		data_dict[int(page_number)] = page_data
+#
+# 	return data_dict
+
+def parse_text(text):
+	# Используем регулярные выражения для извлечения информации
+	regex_pattern = r'([^\:]+):\s*([^А-Яа-я\n]+)'
+	matches = re.findall(regex_pattern, text)
 	
-	data_dict = {}
+	# Создаем словарь на основе найденных соответствий
+	parsed_dict = {key.strip(): value.strip() for key, value in matches}
 	
-	for match in matches:
-		page_number, page_content = match
-		page_data = {"Стр.": int(page_number)}
-		
-		# Ищем пары "Ключ: Значение" на странице
-		key_value_pattern = re.compile(r"([^:\n]+):(.+?)(?:(?=\n[^:\n]+:)|\Z)", re.DOTALL)
-		key_value_matches = key_value_pattern.findall(page_content)
-		
-		for key, value in key_value_matches:
-			page_data[key.strip()] = value.strip()
-		
-		data_dict[int(page_number)] = page_data
-	
-	return data_dict
+	return parsed_dict
 
 
-# Пример использования
 file_path = '810abb0c-4cbf-467b-b319-57896a28f42c.pdf'
 pdf_text = read_pfd(file_path)
-parsed_data = parse_text_with_regex(pdf_text)
+result_dict = parse_text(pdf_text)
+# parsed_data = parse_text_with_regex(pdf_text)
+#
 
-# Вывести результат
-for page_number, data in parsed_data.items():
-	print(f"Страница: {page_number}")
-	print(data)
-	print("\n")
+# for page_number, data in parsed_data.items():
+# 	print(f"Страница: {page_number}")
+# 	print(data)
+# 	print("\n")
+for key, value in result_dict.items():
+	print(f"{key}: {value}")
